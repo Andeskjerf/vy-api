@@ -2,11 +2,7 @@ use json::JsonValue;
 use reqwest::{Client, ClientBuilder, Response, StatusCode};
 use std::error::Error;
 
-use crate::{
-    consts::VY_URL,
-    destination::Destination,
-    journey::{Journey, JourneyVec},
-};
+use crate::{consts::VY_URL, destination::Destination, journey::Journey};
 
 const USER_AGENT: &str = "Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/81.0";
 
@@ -26,7 +22,7 @@ impl VyAPI {
         from: &'a Destination,
         to: &'a Destination,
         date: &'a str,
-    ) -> Result<JourneyVec, Box<dyn Error + Send + Sync>> {
+    ) -> Result<Vec<Journey>, Box<dyn Error + Send + Sync>> {
         let target_url = format!("{}/services/itinerary/api/travel-planner/search", VY_URL);
         let search_body = format!(
             r#"
@@ -60,7 +56,7 @@ impl VyAPI {
         let response = self
             .client
             .post(target_url)
-            .json(&search_body)
+            .header("Content-Type", "application/json")
             .body(search_body)
             .send()
             .await?;
@@ -68,7 +64,7 @@ impl VyAPI {
         assert!(response.status() == StatusCode::OK);
 
         let suggestions = VyAPI::get_json_array_from_response(response, "suggestions").await?;
-        let mut result = JourneyVec(vec![]);
+        let mut result: Vec<Journey> = vec![];
         suggestions.members().for_each(|member| {
             result.push(Journey::from_json(member.clone()));
         });
@@ -104,6 +100,67 @@ impl VyAPI {
         assert_ne!(result.len(), 0);
 
         Ok(result)
+    }
+
+    pub async fn get_offers_for_search(
+        &self,
+        search_results: &[Journey],
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+        let target_url = format!("{}/services/booking/api/offer", VY_URL);
+
+        let ids = search_results.iter().fold(String::new(), |f, x| {
+            format!(
+                "{}\"{}\"{}",
+                f,
+                x.id(),
+                if search_results.last().unwrap() != x {
+                    ","
+                } else {
+                    ""
+                }
+            )
+        });
+
+        let offer_body = format!(
+            r#"
+            {{
+                "itineraryIds":[{}],
+                "addons":[],
+                "isRoundTrip":false,
+                "passengers":[
+                    {{
+                        "age":null,
+                        "interrailCode":null,
+                        "categories":[]
+                    }}
+                ],
+                "promotionCode":"",
+                "numberOfRetries":0,
+                "orderId":null,
+                "legIdsToChange":null
+            }}
+            "#,
+            ids
+        );
+
+        let response = self
+            .client
+            .post(target_url)
+            .header("Content-Type", "application/json")
+            .body(offer_body.clone())
+            .send()
+            .await?;
+
+        assert!(response.status() == StatusCode::OK);
+
+        let suggestions = VyAPI::get_json_array_from_response(response, "itineraryOffers").await?;
+        let mut result: Vec<Journey> = vec![];
+        suggestions.members().for_each(|member| {
+            result.push(Journey::from_json(member.clone()));
+        });
+        // let response_json = json::parse(res.text().await?.as_str()).unwrap();
+        // println!("{:?}", response_json);
+        Ok(())
     }
 
     async fn get_json_array_from_response(

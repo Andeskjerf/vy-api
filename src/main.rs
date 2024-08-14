@@ -31,37 +31,8 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         .unwrap();
 
     let search_ids = api.perform_search_and_get_ids(&from, &to, date).await?;
+    let offers = api.get_offers_for_search(&search_ids).await?;
 
-    let target_url = format!("{}/services/booking/api/offer", VY_URL);
-    let offer_body = format!(
-        r#"
-            {{
-                "itineraryIds":[{}],
-                "addons":[],
-                "isRoundTrip":false,
-                "passengers":[
-                    {{
-                        "age":null,
-                        "interrailCode":null,
-                        "categories":[]
-                    }}
-                ],
-                "promotionCode":"",
-                "numberOfRetries":0,
-                "orderId":null,
-                "legIdsToChange":null
-            }}
-        "#,
-        search_ids
-    );
-    // let res = client
-    //     .post(target_url)
-    //     .json(&offer_body)
-    //     .body(offer_body)
-    //     .send()
-    //     .await?;
-    // let response_json = json::parse(res.text().await?.as_str()).unwrap();
-    // println!("{:?}", response_json);
 
     Ok(())
 }

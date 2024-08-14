@@ -55,35 +55,3 @@ impl Display for Journey {
         )
     }
 }
-
-// wrapper for vec containing journey
-// we do this so we can implement fmt::Display for it
-pub struct JourneyVec(pub Vec<Journey>);
-
-impl Display for JourneyVec {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for item in &self.0 {
-            write!(
-                f,
-                "{}{}",
-                item.id(),
-                if self.0.iter().last().unwrap() != item {
-                    ","
-                } else {
-                    ""
-                }
-            )?;
-        }
-        Ok(())
-    }
-}
-
-impl JourneyVec {
-    pub fn push(&mut self, item: Journey) {
-        self.0.push(item);
-    }
-
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-}
