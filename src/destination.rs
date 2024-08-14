@@ -36,7 +36,7 @@ impl Destination {
             "id" => id = v.to_string(),
             "name" => name = v.to_string(),
             "position" => position = parse_position(v),
-            "description" => description = v.to_string(),
+            "shortDescription" => description = v.to_string(),
             _ => println!("invalid key: {}", k),
         });
 
