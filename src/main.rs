@@ -43,8 +43,8 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     println!("{:?}", offer_ids);
 
     let id = api.make_order(offer_ids.first().unwrap()).await?;
-    println!("{}", id);
 
+    api.get_available_seats(id, from.nsr_code, to.nsr_code).await?;
 
     Ok(())
 }

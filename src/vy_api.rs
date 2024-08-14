@@ -198,6 +198,43 @@ impl VyAPI {
         Ok(result)
     }
 
+    pub async fn get_available_seats(
+        &self,
+        order_guid: String,
+        from_nsr: String,
+        to_nsr: String,
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+        let url = format!(
+            "{}/services/seat/availableseating/available-railcars",
+            VY_URL
+        );
+
+        let body = format!(
+            r#"
+                {{
+                     "orderGuid": "{}",
+                     "fromNsrCode": "{}",
+                     "toNsrCode": "{}",
+                     "specificationType": "SEAT"
+                }}
+            "#,
+            order_guid, from_nsr, to_nsr
+        );
+
+        let response = self
+            .client
+            .post(url)
+            .header("Content-Type", "application/json")
+            .body(body)
+            .send()
+            .await?;
+
+        assert!(response.status() == StatusCode::OK);
+        println!("{}", response.text().await?);
+
+        Ok(())
+    }
+
     async fn get_json_array_from_response(
         response: Response,
         key: &str,

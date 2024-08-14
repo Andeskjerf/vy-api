@@ -8,7 +8,7 @@ pub struct Destination {
     pub name: String,
     pub position: (f64, f64),
     description: String,
-    nsr_code: String,
+    pub nsr_code: String,
 }
 
 impl Destination {

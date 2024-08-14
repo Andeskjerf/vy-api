@@ -31,6 +31,7 @@
 - takes a json body
 - contains the chosen train, or journey, in an array called 'journey'
 - ID is returned by the make order endpoint
+- contains available accommodations. we need to update our order with one to finally get seating
 
 ---
 
