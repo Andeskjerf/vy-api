@@ -1,0 +1,156 @@
+use json::JsonValue;
+use reqwest::{Client, ClientBuilder, Response, StatusCode};
+use std::error::Error;
+
+use crate::{
+    consts::VY_URL,
+    destination::Destination,
+    journey::{Journey, JourneyVec},
+};
+
+const USER_AGENT: &str = "Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/81.0";
+
+pub struct VyAPI {
+    client: Client,
+}
+
+impl VyAPI {
+    pub fn new() -> Result<Self, Box<dyn Error + Send + Sync>> {
+        Ok(Self {
+            client: ClientBuilder::new().user_agent(USER_AGENT).build()?,
+        })
+    }
+
+    pub async fn perform_search_and_get_ids<'a>(
+        &self,
+        from: &'a Destination,
+        to: &'a Destination,
+        date: &'a str,
+    ) -> Result<JourneyVec, Box<dyn Error + Send + Sync>> {
+        let target_url = format!("{}/services/itinerary/api/travel-planner/search", VY_URL);
+        let search_body = format!(
+            r#"
+        {{
+                "from":{{
+                    "latitude":{},
+                    "longitude":{},
+                    "userQuery":{{"searchTerm":"{}"}}
+                }},
+                "to":{{
+                    "latitude":{},
+                    "longitude":{},
+                    "userQuery":{{"searchTerm":"{}"}}
+                }},
+                "date":"{}",
+                "filter":{{
+                    "includeModes":["TRAIN","BUS","TRAM","METRO","WATER"]
+                }},
+                "searchContext": "FIND_JOURNEY_INITIAL"
+            }}
+        "#,
+            from.position.0,
+            from.position.1,
+            from.name,
+            to.position.0,
+            to.position.1,
+            to.name,
+            date
+        );
+
+        let response = self
+            .client
+            .post(target_url)
+            .json(&search_body)
+            .body(search_body)
+            .send()
+            .await?;
+
+        assert!(response.status() == StatusCode::OK);
+
+        let suggestions = VyAPI::get_json_array_from_response(response, "suggestions").await?;
+        let mut result = JourneyVec(vec![]);
+        suggestions.members().for_each(|member| {
+            result.push(Journey::from_json(member.clone()));
+        });
+
+        assert_ne!(result.len(), 0);
+
+        Ok(result)
+    }
+
+    pub async fn get_location_data(
+        &self,
+        location_name: &str,
+    ) -> Result<Vec<Destination>, Box<dyn Error + Send + Sync>> {
+        let location_name = location_name.replace(" ", "+");
+        let response = self
+            .client
+            .get(format!(
+                "{}/services/location/places/autosuggest?query={}&searchOrigin=default",
+                VY_URL, location_name
+            ))
+            .header("Content-Type", "application/json")
+            .send()
+            .await?;
+
+        assert!(response.status() == StatusCode::OK);
+
+        let suggestions = VyAPI::get_json_array_from_response(response, "suggestions").await?;
+        let mut result: Vec<Destination> = vec![];
+        suggestions.members().for_each(|member| {
+            result.push(Destination::from_json(member.clone()));
+        });
+
+        assert_ne!(result.len(), 0);
+
+        Ok(result)
+    }
+
+    async fn get_json_array_from_response(
+        response: Response,
+        key: &str,
+    ) -> Result<JsonValue, Box<dyn Error + Send + Sync>> {
+        let response_json = json::parse(response.text().await?.as_str()).unwrap();
+        Ok(response_json
+            .entries()
+            .find(|(k, _)| k == &key)
+            .map(|(_, v)| v.clone())
+            .unwrap())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use chrono::{DateTime, Utc};
+    use reqwest::get;
+    use std::time::SystemTime;
+
+    use super::*;
+
+    fn get_current_datetime() -> String {
+        std::convert::Into::<DateTime<Utc>>::into(SystemTime::now()).to_rfc3339()
+    }
+
+    fn build_client() -> Result<Client, Box<dyn Error + Send + Sync>> {
+        Ok(ClientBuilder::new().user_agent(USER_AGENT).build()?)
+    }
+
+    // #[tokio::test]
+    // async fn test_search_api() -> Result<(), Box<dyn Error + Send + Sync>> {
+    //     let target_url = format!("{}/services/itinerary/api/travel-planner/search", VY_URL);
+    //     let client = build_client()?;
+    //     (target_url).await?;
+    //     Ok(())
+    // }
+
+    // #[tokio::test]
+    // async fn search_has_suggestions() -> Result<(), Box<dyn Error + Send + Sync>> {
+    //     let api = VyAPI::new()?;
+    //     let suggestions = api
+    //         .perform_search_and_get_ids("Oslo S", "Bergen stasjon", &get_current_datetime())
+    //         .await?;
+
+    //     assert_eq!(suggestions.0.len(), 7);
+    //     Ok(())
+    // }
+}
