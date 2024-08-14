@@ -2,7 +2,7 @@ use json::JsonValue;
 use reqwest::{Client, ClientBuilder, Response, StatusCode};
 use std::error::Error;
 
-use crate::{consts::VY_URL, destination::Destination, journey::Journey};
+use crate::{consts::VY_URL, destination::Destination, journey::Journey, offer::Offer};
 
 const USER_AGENT: &str = "Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/81.0";
 
@@ -105,7 +105,7 @@ impl VyAPI {
     pub async fn get_offers_for_search(
         &self,
         search_results: &[Journey],
-    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    ) -> Result<Vec<Offer>, Box<dyn Error + Send + Sync>> {
         let target_url = format!("{}/services/booking/api/offer", VY_URL);
 
         let ids = search_results.iter().fold(String::new(), |f, x| {
@@ -154,13 +154,48 @@ impl VyAPI {
         assert!(response.status() == StatusCode::OK);
 
         let suggestions = VyAPI::get_json_array_from_response(response, "itineraryOffers").await?;
-        let mut result: Vec<Journey> = vec![];
+        let mut result: Vec<Offer> = vec![];
         suggestions.members().for_each(|member| {
-            result.push(Journey::from_json(member.clone()));
+            result.push(Offer::from_json(member.clone()));
         });
         // let response_json = json::parse(res.text().await?.as_str()).unwrap();
         // println!("{:?}", response_json);
-        Ok(())
+        Ok(result)
+    }
+
+    pub async fn make_order(&self, id: &String) -> Result<String, Box<dyn Error + Send + Sync>> {
+        let url = format!("{}/services/booking/api/v2/orders", VY_URL);
+
+        let body = format!(
+            r#"
+            {{
+                "offerIds":["{}"]
+            }}
+            "#,
+            id
+        );
+
+        println!("{}", body);
+
+        let response = self
+            .client
+            .post(url)
+            .header("Content-Type", "application/json")
+            .body(body.clone())
+            .send()
+            .await?;
+
+        assert!(response.status() == StatusCode::OK);
+
+        let text = json::parse(response.text().await?.as_str()).unwrap();
+
+        let mut result = String::new();
+        text.entries().for_each(|(k, v)| match k {
+            "id" => result = v.to_string(),
+            _ => panic!("no id given"),
+        });
+
+        Ok(result)
     }
 
     async fn get_json_array_from_response(

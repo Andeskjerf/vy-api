@@ -8,35 +8,27 @@ pub struct Destination {
     pub name: String,
     pub position: (f64, f64),
     description: String,
+    nsr_code: String,
 }
 
 impl Destination {
-    pub fn new(
-        id: String,
-        name: String,
-        latitude: f64,
-        longitude: f64,
-        description: String,
-    ) -> Self {
-        Self {
-            id,
-            name,
-            position: (latitude, longitude),
-            description,
-        }
-    }
-
     pub fn from_json(object: JsonValue) -> Self {
         let mut id: String = Default::default();
         let mut name: String = Default::default();
         let mut position: (f64, f64) = (0.0, 0.0);
         let mut description: String = Default::default();
+        let mut nsr_code: String = Default::default();
 
         object.entries().for_each(|(k, v)| match k {
             "id" => id = v.to_string(),
             "name" => name = v.to_string(),
             "position" => position = parse_position(v),
             "shortDescription" => description = v.to_string(),
+            "externalReferences" => v.entries().for_each(|(_, v)| {
+                if v.contains("NSR:") {
+                    nsr_code = v.to_string();
+                }
+            }),
             _ => println!("invalid key: {}", k),
         });
 
@@ -45,6 +37,7 @@ impl Destination {
             name,
             position,
             description,
+            nsr_code,
         }
     }
 }
