@@ -30,12 +30,24 @@ impl VyAPI {
                 "from":{{
                     "latitude":{},
                     "longitude":{},
-                    "userQuery":{{"searchTerm":"{}"}}
+                    "userQuery":{{"searchTerm":"{}"}},
+                    "externalReferences":[
+                        {{
+                            "id": "{}",
+                            "origin": "NSR"
+                        }}
+                    ]
                 }},
                 "to":{{
                     "latitude":{},
                     "longitude":{},
-                    "userQuery":{{"searchTerm":"{}"}}
+                    "userQuery":{{"searchTerm":"{}"}},
+                    "externalReferences":[
+                        {{
+                            "id": "{}",
+                            "origin": "NSR"
+                        }}
+                    ]
                 }},
                 "date":"{}",
                 "filter":{{
@@ -47,9 +59,11 @@ impl VyAPI {
             from.position.0,
             from.position.1,
             from.name,
+            from.nsr_code,
             to.position.0,
             to.position.1,
             to.name,
+            to.nsr_code,
             date
         );
 
@@ -66,6 +80,7 @@ impl VyAPI {
         let suggestions = VyAPI::get_json_array_from_response(response, "suggestions").await?;
         let mut result: Vec<Journey> = vec![];
         suggestions.members().for_each(|member| {
+            println!("{:?}", member.to_string());
             result.push(Journey::from_json(member.clone()));
         });
 
@@ -220,6 +235,7 @@ impl VyAPI {
             "#,
             order_guid, from_nsr, to_nsr
         );
+        println!("{}", body);
 
         let response = self
             .client
