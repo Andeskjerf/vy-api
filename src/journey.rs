@@ -2,15 +2,18 @@ use std::fmt::Display;
 
 use json::JsonValue;
 
-use crate::duration::Duration;
+use crate::{destination::Destination, duration::Duration};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub struct Journey {
     departure: String,
     arrival: String,
     departure_scheduled: String,
     arrival_scheduled: String,
     total_duration: Duration,
+    legs: Vec<JsonValue>,
+    pub from: Destination,
+    pub to: Destination,
     id: String,
 }
 
@@ -22,6 +25,7 @@ impl Journey {
         let mut arrival = Default::default();
         let mut arrival_scheduled = Default::default();
         let mut total_duration = Default::default();
+        let mut legs: Vec<JsonValue> = vec![];
         object.entries().for_each(|(k, v)| match k {
             "id" => id = v.to_string(),
             "departure" => departure = v.to_string(),
@@ -29,8 +33,31 @@ impl Journey {
             "arrival" => arrival = v.to_string(),
             "arrivalScheduled" => arrival_scheduled = v.to_string(),
             "totalDuration" => total_duration = Duration::from_json(v.clone()),
+            "legs" => legs.push(v.clone()),
             _ => println!("invalid key: {k:?}"),
         });
+
+        // not sure if the API can return more than 1
+        // so assert it and see
+        assert_eq!(legs.len(), 1);
+
+        let mut from: Destination = Default::default();
+        let mut to: Destination = Default::default();
+
+        // println!("{:?}", legs.first().unwrap());
+
+        legs.first().unwrap().members().for_each(|m| {
+            m.entries().for_each(|(k, v)| {
+                match k {
+                    "from" => from = Destination::from_json(v.clone()),
+                    "to" => to = Destination::from_json(v.clone()),
+                    _ => println!("unknown key: {}", k),
+                }
+            });
+        });
+
+        println!("{}", from);
+
         Self {
             id,
             departure,
@@ -38,6 +65,9 @@ impl Journey {
             arrival,
             arrival_scheduled,
             total_duration,
+            legs,
+            from,
+            to,
         }
     }
 

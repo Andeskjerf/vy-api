@@ -34,13 +34,17 @@ impl Offer {
 
         self.segment_offers.iter().for_each(|offer| {
             // println!("bookability: {:?}, {:?}", offer.bookability.type_, offer.price_configrations);
-            println!("{:?}", self.id);
+            // println!("{:?}", self.id);
             if !offer.price_configrations.is_empty() {
                 result.push(offer.price_configrations.first().unwrap().id.clone());
             }
         });
 
         result
+    }
+
+    pub fn get_id(&self) -> String {
+        self.id.clone()
     }
 }
 

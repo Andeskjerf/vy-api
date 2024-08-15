@@ -18,11 +18,18 @@
 
 ---
 
-- AVAILABLE CARTS
+- AVAILABLE SEATS CARTS
   https://www.vy.no/services/seat/availableseating/available-railcars
 - takes a json body
 - returns a json array consisting of each cart, including available seats & beds for each cart
 - how to call? it appears to need a orderGuid, which is given to the client when a new order is created. not possible to use ID of train?
+
+---
+
+- AVAILABLE SEATS BUS
+  https://www.vy.no/services/seat/api/seat-map/<id>
+- takes a json body
+- gets available seats for bus rides
 
 ---
 

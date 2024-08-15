@@ -59,11 +59,11 @@ impl VyAPI {
             from.position.0,
             from.position.1,
             from.name,
-            from.nsr_code,
+            from.get_nsr_code(),
             to.position.0,
             to.position.1,
             to.name,
-            to.nsr_code,
+            to.get_nsr_code(),
             date
         );
 
@@ -80,7 +80,7 @@ impl VyAPI {
         let suggestions = VyAPI::get_json_array_from_response(response, "suggestions").await?;
         let mut result: Vec<Journey> = vec![];
         suggestions.members().for_each(|member| {
-            println!("{:?}", member.to_string());
+            // println!("{:?}", member.to_string());
             result.push(Journey::from_json(member.clone()));
         });
 
