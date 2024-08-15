@@ -2,7 +2,7 @@ use json::JsonValue;
 use reqwest::{Client, ClientBuilder, Response, StatusCode};
 use std::error::Error;
 
-use crate::{consts::VY_URL, destination::Destination, journey::Journey, offer::Offer};
+use crate::{cart::Cart, consts::VY_URL, destination::Destination, journey::Journey, offer::Offer};
 
 const USER_AGENT: &str = "Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/81.0";
 
@@ -213,12 +213,26 @@ impl VyAPI {
         Ok(result)
     }
 
+    pub async fn delete_order(&self, id: &String) -> Result<(), Box<dyn Error + Send + Sync>> {
+        let url = format!("{}/services/booking/api/v2/orders/{}", VY_URL, id);
+        let response = self.client
+            .delete(url)
+            .header("Accept", "application/json")
+            .header("Content-Type", "text/xml")
+            .send()
+            .await?;
+
+        assert!(response.status() == StatusCode::NO_CONTENT);
+
+        Ok(())
+    }
+
     pub async fn get_available_seats(
         &self,
         order_guid: String,
         from_nsr: String,
         to_nsr: String,
-    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    ) -> Result<Vec<Cart>, Box<dyn Error + Send + Sync>> {
         let url = format!(
             "{}/services/seat/availableseating/available-railcars",
             VY_URL
@@ -246,9 +260,21 @@ impl VyAPI {
             .await?;
 
         assert!(response.status() == StatusCode::OK);
-        println!("{}", response.text().await?);
 
-        Ok(())
+        let text = &response.text().await?;
+        let parsed = json::parse(text).unwrap();
+
+        // println!("{:?}", text);
+        let mut result: Vec<Cart> = vec![];
+
+        parsed.members().for_each(|m| {
+            // println!("{}", m);
+            result.push(serde_json::from_str(&m.to_string()).unwrap());
+        });
+
+        // result.0.push(serde_json::from_str(&response.text().await?).unwrap());
+
+        Ok(result)
     }
 
     async fn get_json_array_from_response(

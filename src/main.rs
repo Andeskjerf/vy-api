@@ -48,12 +48,27 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let id = api.make_order(offer_ids.first().unwrap()).await?;
     println!("{}", id);
 
-    api.get_available_seats(
-        id,
+    let carts = api.get_available_seats(
+        id.clone(),
         journey_taken.from.get_nsr_code(),
         journey_taken.to.get_nsr_code(),
     )
     .await?;
+
+    println!("carts: {}", carts.len());
+    let mut available = 0;
+    carts.iter().for_each(|c| {
+        println!("seats in cart {}: {}", c.id, c.seats.len());
+        c.seats.iter().for_each(|s| {
+            if s.available {
+                available += 1;
+            }
+        });
+    });
+
+    println!("total available seats: {}", available);
+
+    api.delete_order(&id).await?;
 
     Ok(())
 }
