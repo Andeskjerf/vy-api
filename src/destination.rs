@@ -20,7 +20,6 @@ impl Destination {
         let mut nsr_code: String = Default::default();
 
         object.entries().for_each(|(k, v)| {
-            println!("{:?}", v);
             match k {
                 "id" => id = v.to_string(),
                 "name" | "displayName" => name = v.to_string(),

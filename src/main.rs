@@ -8,6 +8,8 @@ mod duration;
 mod journey;
 mod offer;
 mod vy_api;
+mod cart;
+mod seat;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
