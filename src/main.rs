@@ -2,14 +2,14 @@ use std::error::Error;
 
 use vy_api::VyAPI;
 
+mod cart;
 mod consts;
 mod destination;
 mod duration;
 mod journey;
 mod offer;
-mod vy_api;
-mod cart;
 mod seat;
+mod vy_api;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
@@ -36,34 +36,27 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut offer_ids: Vec<String> = vec![];
 
     offers.iter().for_each(|elem| {
-        // println!("{:?}", elem.get_offer_ids());
         offer_ids.append(&mut elem.get_offer_ids());
     });
 
-    // println!("{:?}", offer_ids);
     let offer_id = offers.first().unwrap().get_id();
     let journey_taken = search_ids.iter().find(|j| *j.id() == offer_id).unwrap();
-    println!("{:?}", journey_taken.from);
 
     let id = api.make_order(offer_ids.first().unwrap()).await?;
-    println!("{}", id);
 
-    let carts = api.get_available_seats(
-        id.clone(),
-        journey_taken.from.get_nsr_code(),
-        journey_taken.to.get_nsr_code(),
-    )
-    .await?;
+    let carts = api
+        .get_available_seats(
+            id.clone(),
+            journey_taken.from.get_nsr_code(),
+            journey_taken.to.get_nsr_code(),
+        )
+        .await?;
 
     println!("carts: {}", carts.len());
     let mut available = 0;
     carts.iter().for_each(|c| {
         println!("seats in cart {}: {}", c.id, c.seats.len());
-        c.seats.iter().for_each(|s| {
-            if s.available {
-                available += 1;
-            }
-        });
+        available = c.seats.iter().filter(|e| e.available).count();
     });
 
     println!("total available seats: {}", available);
