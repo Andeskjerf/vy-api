@@ -56,16 +56,18 @@ impl VyAPI {
                 "searchContext": "FIND_JOURNEY_INITIAL"
             }}
         "#,
-            from.position.0,
-            from.position.1,
+            from.position.lat(),
+            from.position.long(),
             from.name,
             from.get_nsr_code(),
-            to.position.0,
-            to.position.1,
+            to.position.lat(),
+            to.position.long(),
             to.name,
             to.get_nsr_code(),
             date
         );
+
+        println!("{}", search_body);
 
         let response = self
             .client
@@ -80,7 +82,6 @@ impl VyAPI {
         let suggestions = VyAPI::get_json_array_from_response(response, "suggestions").await?;
         let mut result: Vec<Journey> = vec![];
         suggestions.members().for_each(|member| {
-            // println!("{:?}", member.to_string());
             result.push(Journey::from_json(member.clone()));
         });
 
@@ -109,7 +110,8 @@ impl VyAPI {
         let suggestions = VyAPI::get_json_array_from_response(response, "suggestions").await?;
         let mut result: Vec<Destination> = vec![];
         suggestions.members().for_each(|member| {
-            result.push(Destination::from_json(member.clone()));
+            result.push(serde_json::from_str(&member.clone().to_string()).unwrap());
+            // result.push(Destination::from_json(member.clone()));
         });
 
         assert_ne!(result.len(), 0);
@@ -158,6 +160,8 @@ impl VyAPI {
             ids
         );
 
+        println!("{}", offer_body);
+
         let response = self
             .client
             .post(target_url)
@@ -173,8 +177,7 @@ impl VyAPI {
         suggestions.members().for_each(|member| {
             result.push(Offer::from_json(member.clone()));
         });
-        // let response_json = json::parse(res.text().await?.as_str()).unwrap();
-        // println!("{:?}", response_json);
+
         Ok(result)
     }
 
@@ -215,7 +218,8 @@ impl VyAPI {
 
     pub async fn delete_order(&self, id: &String) -> Result<(), Box<dyn Error + Send + Sync>> {
         let url = format!("{}/services/booking/api/v2/orders/{}", VY_URL, id);
-        let response = self.client
+        let response = self
+            .client
             .delete(url)
             .header("Accept", "application/json")
             .header("Content-Type", "text/xml")
@@ -264,11 +268,9 @@ impl VyAPI {
         let text = &response.text().await?;
         let parsed = json::parse(text).unwrap();
 
-        // println!("{:?}", text);
         let mut result: Vec<Cart> = vec![];
 
         parsed.members().for_each(|m| {
-            // println!("{}", m);
             result.push(serde_json::from_str(&m.to_string()).unwrap());
         });
 

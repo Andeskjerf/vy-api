@@ -1,78 +1,37 @@
-use std::fmt::Display;
+use serde::{Deserialize, Serialize};
 
-use json::JsonValue;
+use crate::{external_reference::ExternalReference, position::Position};
 
-#[derive(Clone, Default, PartialEq, Debug)]
+#[derive(Clone, Default, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Destination {
+    #[serde(default)]
     id: String,
+    #[serde(alias = "displayName")]
     pub name: String,
-    pub position: (f64, f64),
+    #[serde(alias = "location")]
+    pub position: Position,
+    #[serde(alias = "shortDescription")]
     description: String,
-    nsr_code: String,
+    #[serde(rename = "externalReferences")]
+    external_references: Vec<ExternalReference>,
+    #[serde(default)]
+    platform: String,
 }
 
 impl Destination {
-    pub fn from_json(object: JsonValue) -> Self {
-        let mut id: String = Default::default();
-        let mut name: String = Default::default();
-        let mut position: (f64, f64) = (0.0, 0.0);
-        let mut description: String = Default::default();
-        let mut nsr_code: String = Default::default();
-
-        object.entries().for_each(|(k, v)| {
-            match k {
-                "id" => id = v.to_string(),
-                "name" | "displayName" => name = v.to_string(),
-                "position" => position = parse_position(v),
-                "shortDescription" => description = v.to_string(),
-                "externalReferences" => v.members().for_each(|m| {
-                    m.entries().for_each(|(_, v)| {
-                        let v = v.to_string();
-                        if v.contains("NSR:") {
-                            nsr_code = v;
-                        }
-                    });
-                }),
-                _ => println!("invalid key: {}", k),
+    pub fn get_nsr_code(&self) -> String {
+        for reference in self.external_references.iter() {
+            if reference.origin() == "NSR" {
+                return reference.code().to_owned();
             }
-        });
+        }
+        "NO_NSR_CODE".to_owned()
+    }
 
-        Self {
-            id,
-            name,
-            position,
-            description,
-            nsr_code,
+    pub fn get_platform(&self) -> &str {
+        match self.platform.as_str() {
+            "" => "No platform found",
+            _ => &self.platform,
         }
     }
-
-    pub fn get_id(&self) -> String {
-        self.id.clone()
-    }
-
-    pub fn get_nsr_code(&self) -> String {
-        self.nsr_code.clone()
-    }
-}
-
-impl Display for Destination {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "id: {}, name: {}, position: ({},{}), description: {}",
-            self.id, self.name, self.position.0, self.position.1, self.description
-        )?;
-        Ok(())
-    }
-}
-
-fn parse_position(object: &JsonValue) -> (f64, f64) {
-    let mut lat = 0.0;
-    let mut long = 0.0;
-    object.entries().for_each(|(k, v)| match k {
-        "latitude" => lat = v.as_f64().unwrap(),
-        "longitude" => long = v.as_f64().unwrap(),
-        _ => panic!("invalid key: {k}"),
-    });
-    (lat, long)
 }

@@ -24,7 +24,7 @@ impl Duration {
             "days" => days = v.as_u8().unwrap(),
             "hours" => hours = v.as_u8().unwrap(),
             "minutes" => minutes = v.as_u8().unwrap(),
-            _ => println!("invalid key: {k:?}"),
+            _ => (),
         });
         Self {
             days,

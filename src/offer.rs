@@ -19,7 +19,7 @@ impl Offer {
             "segmentOffers" => v.members().for_each(|v| {
                 segment_offers.push(SegmentOffer::from_json(v.clone()));
             }),
-            _ => println!("invalid key: {}", k),
+            _ => (),
         });
 
         Self {
@@ -33,8 +33,6 @@ impl Offer {
         let mut result: Vec<String> = vec![];
 
         self.segment_offers.iter().for_each(|offer| {
-            // println!("bookability: {:?}, {:?}", offer.bookability.type_, offer.price_configrations);
-            // println!("{:?}", self.id);
             if !offer.price_configrations.is_empty() {
                 result.push(offer.price_configrations.first().unwrap().id.clone());
             }
@@ -138,7 +136,8 @@ impl Bookability {
             "summary" => summary = v.to_string(),
             "description" => description = v.to_string(),
             "externalLink" => external_link = v.to_string(),
-            _ => println!("invalid key: {}", k),
+            _ => (),
+            // _ => println!("invalid key: {}", k),
         });
 
         Self {

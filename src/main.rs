@@ -10,12 +10,14 @@ mod journey;
 mod offer;
 mod seat;
 mod vy_api;
+mod position;
+mod external_reference;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let from = "Oslo S";
     let to = "Bergen stasjon";
-    let date = "2024-08-16T04:00:00.000Z";
+    let date = "2024-08-19T04:00:00.000Z";
 
     let api = VyAPI::new()?;
 
@@ -56,7 +58,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut available = 0;
     carts.iter().for_each(|c| {
         println!("seats in cart {}: {}", c.id, c.seats.len());
-        available = c.seats.iter().filter(|e| e.available).count();
+        available += c.seats.iter().filter(|e| e.available).count();
     });
 
     println!("total available seats: {}", available);

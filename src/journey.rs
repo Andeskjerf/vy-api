@@ -34,7 +34,7 @@ impl Journey {
             "arrivalScheduled" => arrival_scheduled = v.to_string(),
             "totalDuration" => total_duration = Duration::from_json(v.clone()),
             "legs" => legs.push(v.clone()),
-            _ => println!("invalid key: {k:?}"),
+            _ => (),
         });
 
         // not sure if the API can return more than 1
@@ -44,19 +44,18 @@ impl Journey {
         let mut from: Destination = Default::default();
         let mut to: Destination = Default::default();
 
-        // println!("{:?}", legs.first().unwrap());
-
         legs.first().unwrap().members().for_each(|m| {
             m.entries().for_each(|(k, v)| {
+                println!("{}", v);
                 match k {
-                    "from" => from = Destination::from_json(v.clone()),
-                    "to" => to = Destination::from_json(v.clone()),
-                    _ => println!("unknown key: {}", k),
+                    // "from" => from = Destination::from_json(v.clone()),
+                    // "to" => to = Destination::from_json(v.clone()),
+                    "from" => from = serde_json::from_str(&v.to_string()).unwrap(),
+                    "to" => to = serde_json::from_str(&v.to_string()).unwrap(),
+                    _ => (),
                 }
             });
         });
-
-        println!("{}", from);
 
         Self {
             id,
