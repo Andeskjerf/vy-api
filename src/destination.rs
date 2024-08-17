@@ -10,9 +10,9 @@ pub struct Destination {
     pub name: String,
     #[serde(alias = "location")]
     pub position: Position,
-    #[serde(alias = "shortDescription")]
+    #[serde(alias = "shortDescription", default)]
     description: String,
-    #[serde(rename = "externalReferences")]
+    #[serde(alias = "externalReferences", default)]
     external_references: Vec<ExternalReference>,
     #[serde(default)]
     platform: String,

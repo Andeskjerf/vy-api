@@ -6,33 +6,31 @@ mod cart;
 mod consts;
 mod destination;
 mod duration;
+mod external_reference;
 mod journey;
+mod leg;
+mod line;
 mod offer;
+mod operator;
+mod position;
 mod seat;
 mod vy_api;
-mod position;
-mod external_reference;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let from = "Oslo S";
     let to = "Bergen stasjon";
-    let date = "2024-08-19T04:00:00.000Z";
+    let date = "2024-08-20T04:00:00.000Z";
 
     let api = VyAPI::new()?;
 
     let from_search = api.get_location_data(from).await?;
     let to_search = api.get_location_data(to).await?;
 
-    let from = from_search
-        .iter()
-        .find(|x| x.name == from)
-        .cloned()
-        .unwrap();
+    let from = from_search.iter().find(|x| x.name == from).unwrap();
+    let to = to_search.iter().find(|x| x.name == to).unwrap();
 
-    let to = to_search.iter().find(|x| x.name == to).cloned().unwrap();
-
-    let search_ids = api.perform_search_and_get_ids(&from, &to, date).await?;
+    let search_ids = api.perform_search_and_get_ids(from, to, date).await?;
     let offers = api.get_offers_for_search(&search_ids).await?;
 
     let mut offer_ids: Vec<String> = vec![];
@@ -49,8 +47,8 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let carts = api
         .get_available_seats(
             id.clone(),
-            journey_taken.from.get_nsr_code(),
-            journey_taken.to.get_nsr_code(),
+            journey_taken.legs.first().unwrap().get_from_nsr_code(),
+            journey_taken.legs.first().unwrap().get_to_nsr_code(),
         )
         .await?;
 

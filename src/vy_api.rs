@@ -82,7 +82,7 @@ impl VyAPI {
         let suggestions = VyAPI::get_json_array_from_response(response, "suggestions").await?;
         let mut result: Vec<Journey> = vec![];
         suggestions.members().for_each(|member| {
-            result.push(Journey::from_json(member.clone()));
+            result.push(serde_json::from_str(&member.to_string()).unwrap());
         });
 
         assert_ne!(result.len(), 0);
@@ -111,7 +111,6 @@ impl VyAPI {
         let mut result: Vec<Destination> = vec![];
         suggestions.members().for_each(|member| {
             result.push(serde_json::from_str(&member.clone().to_string()).unwrap());
-            // result.push(Destination::from_json(member.clone()));
         });
 
         assert_ne!(result.len(), 0);
