@@ -174,7 +174,7 @@ impl VyAPI {
         let suggestions = VyAPI::get_json_array_from_response(response, "itineraryOffers").await?;
         let mut result: Vec<Offer> = vec![];
         suggestions.members().for_each(|member| {
-            result.push(Offer::from_json(member.clone()));
+            result.push(serde_json::from_str(&member.to_string()).unwrap());
         });
 
         Ok(result)

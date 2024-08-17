@@ -1,34 +1,15 @@
-use json::JsonValue;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Offer {
+    #[serde(alias = "itineraryId")]
     id: String,
     bookability: Bookability,
+    #[serde(alias = "segmentOffers")]
     segment_offers: Vec<SegmentOffer>,
 }
 
 impl Offer {
-    pub fn from_json(object: JsonValue) -> Self {
-        let mut id = String::new();
-        let mut bookability = Bookability::default();
-        let mut segment_offers: Vec<SegmentOffer> = vec![];
-
-        object.entries().for_each(|(k, v)| match k {
-            "itineraryId" => id = v.to_string(),
-            "bookability" => bookability = Bookability::from_json(v.clone()),
-            "segmentOffers" => v.members().for_each(|v| {
-                segment_offers.push(SegmentOffer::from_json(v.clone()));
-            }),
-            _ => (),
-        });
-
-        Self {
-            id,
-            bookability,
-            segment_offers,
-        }
-    }
-
     pub fn get_offer_ids(&self) -> Vec<String> {
         let mut result: Vec<String> = vec![];
 
@@ -46,105 +27,44 @@ impl Offer {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct SegmentOffer {
     id: String,
+    #[serde(alias = "type")]
     type_: String,
+    #[serde(alias = "legIds")]
+    leg_ids: Vec<String>,
     pub bookability: Bookability,
+    #[serde(alias = "priceConfigurations")]
     pub price_configrations: Vec<PriceConfiguration>,
 }
 
-impl SegmentOffer {
-    fn from_json(object: JsonValue) -> Self {
-        let mut id = String::new();
-        let mut type_ = String::new();
-        let mut bookability = Bookability::default();
-        let mut price_configrations: Vec<PriceConfiguration> = vec![];
-
-        object.entries().for_each(|(k, v)| match k {
-            "id" => id = v.to_string(),
-            "type" => type_ = v.to_string(),
-            "bookability" => bookability = Bookability::from_json(v.clone()),
-            "priceConfigurations" => v.members().for_each(|v| {
-                price_configrations.push(PriceConfiguration::from_json(v.clone()));
-            }),
-            _ => (),
-        });
-
-        Self {
-            id,
-            type_,
-            bookability,
-            price_configrations,
-        }
-    }
-}
-
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct PriceConfiguration {
     pub id: String,
     name: String,
+    #[serde(alias = "type")]
     type_: String,
+    authorities: Vec<String>,
 }
 
-impl PriceConfiguration {
-    fn from_json(object: JsonValue) -> Self {
-        let mut id = String::new();
-        let mut type_ = String::new();
-        let mut name = String::new();
-
-        object.entries().for_each(|(k, v)| match k {
-            "id" => id = v.to_string(),
-            "type" => type_ = v.to_string(),
-            "name" => name = v.to_string(),
-            _ => (),
-        });
-
-        Self { id, type_, name }
-    }
-}
-
-#[derive(Default, PartialEq, Eq, Debug)]
+#[derive(Default, PartialEq, Eq, Debug, Serialize, Deserialize)]
 enum BookabilityType {
+    #[serde(rename = "FULLY_BOOKABLE")]
     FullyBookable,
+    #[serde(rename = "NOT_BOOKABLE")]
     #[default]
     NotBookable,
+    #[serde(rename = "BOOKABLE")]
     Bookable,
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Serialize, Deserialize)]
 struct Bookability {
+    #[serde(alias = "type")]
     type_: BookabilityType,
-    summary: String,
-    description: String,
-    external_link: String,
-}
-
-impl Bookability {
-    fn from_json(object: JsonValue) -> Self {
-        let mut type_: BookabilityType = BookabilityType::NotBookable;
-        let mut summary = String::new();
-        let mut description = String::new();
-        let mut external_link = String::new();
-        object.entries().for_each(|(k, v)| match k {
-            "type" => match v.as_str().unwrap() {
-                "NOT_BOOKABLE" => type_ = BookabilityType::NotBookable,
-                "FULLY_BOOKABLE" => type_ = BookabilityType::FullyBookable,
-                "BOOKABLE" => type_ = BookabilityType::Bookable,
-                _ => panic!("invalid bookability_type: {}", v),
-            },
-            "summary" => summary = v.to_string(),
-            "description" => description = v.to_string(),
-            "externalLink" => external_link = v.to_string(),
-            _ => (),
-            // _ => println!("invalid key: {}", k),
-        });
-
-        Self {
-            type_,
-            summary,
-            description,
-            external_link,
-        }
-    }
+    summary: Option<String>,
+    description: Option<String>,
+    #[serde(alias = "externalLink")]
+    external_link: Option<String>,
 }
