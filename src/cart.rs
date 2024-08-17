@@ -31,5 +31,3 @@ pub struct Cart {
     #[serde(rename = "railcarElements")]
     pub seats: Vec<Seat>,
 }
-
-impl Cart {}
