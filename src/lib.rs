@@ -4,5 +4,10 @@ pub mod consts;
 pub mod destination;
 pub mod journey;
 pub mod offer;
+pub mod seat;
+pub mod external_reference;
+pub mod position;
+pub mod leg;
+pub mod duration;
 
 pub use vy_api::VyAPI;
