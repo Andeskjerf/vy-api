@@ -1,5 +1,5 @@
 [package]
-name = "vy-vacant-seats"
+name = "vy_api"
 version = "0.1.0"
 edition = "2021"
 
