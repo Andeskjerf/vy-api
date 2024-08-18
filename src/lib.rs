@@ -9,5 +9,6 @@ pub mod external_reference;
 pub mod position;
 pub mod leg;
 pub mod duration;
+pub mod operator;
 
 pub use vy_api::VyAPI;
