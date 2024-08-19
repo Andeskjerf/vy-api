@@ -16,6 +16,8 @@ pub struct Destination {
     external_references: Vec<ExternalReference>,
     #[serde(default)]
     platform: String,
+    #[serde(default)]
+    categories: Vec<Category>,
 }
 
 impl Destination {
@@ -34,4 +36,11 @@ impl Destination {
             _ => &self.platform,
         }
     }
+}
+
+#[derive(Clone, Default, PartialEq, Debug, Serialize, Deserialize)]
+struct Category {
+    id: String,
+    #[serde(default)]
+    name: String,
 }

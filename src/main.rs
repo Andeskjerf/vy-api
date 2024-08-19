@@ -20,7 +20,7 @@ mod vy_api;
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let from = "Oslo S";
     let to = "Bergen stasjon";
-    let date = "2024-08-20T04:00:00.000Z";
+    let date = "2024-08-22T04:00:00.000Z";
 
     let api = VyAPI::new()?;
 
