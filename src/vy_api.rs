@@ -313,7 +313,7 @@ impl VyAPI {
 //         let target_url = format!("{}/services/itinerary/api/travel-planner/search", VY_URL);
 //         let client = build_client()?;
 //         (target_url).await?;
-//         Ok(())
+//         Ok(()
 //     }
 
 //     #[tokio::test]

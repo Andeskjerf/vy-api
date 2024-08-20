@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{destination::Destination, duration::Duration, operator::Operator};
+use crate::{destination::Destination, duration::Duration, line::Line, operator::Operator};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Leg {
@@ -27,6 +27,8 @@ pub struct Leg {
     pub from: Destination,
     #[serde(default)]
     pub to: Destination,
+    #[serde(default)]
+    line: Line
 }
 
 impl Leg {

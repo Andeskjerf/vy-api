@@ -10,5 +10,6 @@ pub mod position;
 pub mod leg;
 pub mod duration;
 pub mod operator;
+pub mod line;
 
 pub use vy_api::VyAPI;
