@@ -55,6 +55,8 @@ enum BookabilityType {
     #[serde(rename = "NOT_BOOKABLE")]
     #[default]
     NotBookable,
+    #[serde(rename = "PARTIALLY_BOOKABLE")]
+    PartiallyBookable,
     #[serde(rename = "BOOKABLE")]
     Bookable,
 }

@@ -82,6 +82,7 @@ impl VyAPI {
         let suggestions = VyAPI::get_json_array_from_response(response, "suggestions").await?;
         let mut result: Vec<Journey> = vec![];
         suggestions.members().for_each(|member| {
+            println!("{}", member);
             result.push(serde_json::from_str(&member.to_string()).unwrap());
         });
 
@@ -291,38 +292,38 @@ impl VyAPI {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use chrono::{DateTime, Utc};
-    use reqwest::get;
-    use std::time::SystemTime;
+// #[cfg(test)]
+// mod tests {
+//     use chrono::{DateTime, Utc};
+//     use reqwest::get;
+//     use std::time::SystemTime;
 
-    use super::*;
+//     use super::*;
 
-    fn get_current_datetime() -> String {
-        std::convert::Into::<DateTime<Utc>>::into(SystemTime::now()).to_rfc3339()
-    }
+//     fn get_current_datetime() -> String {
+//         std::convert::Into::<DateTime<Utc>>::into(SystemTime::now()).to_rfc3339()
+//     }
 
-    fn build_client() -> Result<Client, Box<dyn Error + Send + Sync>> {
-        Ok(ClientBuilder::new().user_agent(USER_AGENT).build()?)
-    }
+//     fn build_client() -> Result<Client, Box<dyn Error + Send + Sync>> {
+//         Ok(ClientBuilder::new().user_agent(USER_AGENT).build()?)
+//     }
 
-    // #[tokio::test]
-    // async fn test_search_api() -> Result<(), Box<dyn Error + Send + Sync>> {
-    //     let target_url = format!("{}/services/itinerary/api/travel-planner/search", VY_URL);
-    //     let client = build_client()?;
-    //     (target_url).await?;
-    //     Ok(())
-    // }
+//     #[tokio::test]
+//     async fn test_search_api() -> Result<(), Box<dyn Error + Send + Sync>> {
+//         let target_url = format!("{}/services/itinerary/api/travel-planner/search", VY_URL);
+//         let client = build_client()?;
+//         (target_url).await?;
+//         Ok(())
+//     }
 
-    // #[tokio::test]
-    // async fn search_has_suggestions() -> Result<(), Box<dyn Error + Send + Sync>> {
-    //     let api = VyAPI::new()?;
-    //     let suggestions = api
-    //         .perform_search_and_get_ids("Oslo S", "Bergen stasjon", &get_current_datetime())
-    //         .await?;
+//     #[tokio::test]
+//     async fn search_has_suggestions() -> Result<(), Box<dyn Error + Send + Sync>> {
+//         let api = VyAPI::new()?;
+//         let suggestions = api
+//             .perform_search_and_get_ids("Oslo S", "Bergen stasjon", &get_current_datetime())
+//             .await?;
 
-    //     assert_eq!(suggestions.0.len(), 7);
-    //     Ok(())
-    // }
-}
+//         assert_eq!(suggestions.0.len(), 7);
+//         Ok(())
+//     }
+// }

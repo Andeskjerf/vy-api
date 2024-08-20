@@ -4,8 +4,9 @@ use crate::{destination::Destination, duration::Duration, operator::Operator};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Leg {
-    #[serde(alias = "enturId")]
-    entur_id: String,
+    #[serde(alias = "enturId", default)]
+    entur_id: Option<String>,
+    #[serde(default)]
     id: String,
     #[serde(alias = "departureScheduled")]
     departure_scheduled: String,
@@ -16,10 +17,15 @@ pub struct Leg {
     #[serde(alias = "arrivalRealTime")]
     arrival_realtime: Option<String>,
     duration: Duration,
+    #[serde(default)]
     branding: Operator,
+    #[serde(default)]
     operator: Operator,
+    #[serde(default)]
     authority: Operator,
+    #[serde(default)]
     pub from: Destination,
+    #[serde(default)]
     pub to: Destination,
 }
 
