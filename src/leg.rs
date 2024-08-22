@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{destination::Destination, duration::Duration, line::Line, operator::Operator};
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Leg {
     #[serde(alias = "enturId", default)]
     entur_id: Option<String>,

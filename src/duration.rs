@@ -2,7 +2,7 @@ use json::JsonValue;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Default, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Default, Debug, PartialEq, Eq, Serialize, Deserialize, Clone, Copy)]
 pub struct Duration {
     days: u8,
     hours: u8,

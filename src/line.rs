@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, PartialEq, Default, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Default, Debug, Clone)]
 pub struct Line {
     name: String,
     #[serde(alias = "longName")]

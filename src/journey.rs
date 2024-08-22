@@ -2,7 +2,7 @@ use crate::{destination::Destination, duration::Duration, leg::Leg};
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Journey {
     departure: String,
     arrival: String,
