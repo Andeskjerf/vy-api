@@ -5,9 +5,9 @@ use crate::{destination::Destination, duration::Duration, line::Line, operator::
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Leg {
     #[serde(alias = "enturId", default)]
-    entur_id: Option<String>,
+    pub entur_id: Option<String>,
     #[serde(default)]
-    id: String,
+    pub id: String,
     #[serde(alias = "departureScheduled")]
     departure_scheduled: String,
     #[serde(alias = "arrivalScheduled")]

@@ -8,9 +8,9 @@ pub struct Seat {
     // #[serde(rename = "seatSpecification")]
     // seat_specification: String,
     #[serde(rename = "positionX")]
-    position_x: u32,
+    position_x: i32,
     #[serde(rename = "positionY")]
-    position_y: u32,
+    position_y: i32,
     direction: String,
     #[serde(rename = "seatIconId")]
     seat_icon_id: u32,

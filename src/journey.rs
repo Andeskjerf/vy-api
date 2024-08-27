@@ -4,18 +4,18 @@ use std::fmt::Display;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Journey {
-    departure: String,
-    arrival: String,
+    pub departure: String,
+    pub arrival: String,
     #[serde(alias = "departureScheduled")]
-    departure_scheduled: String,
+    pub departure_scheduled: String,
     #[serde(alias = "arrivalScheduled")]
-    arrival_scheduled: String,
+    pub arrival_scheduled: String,
     #[serde(alias = "totalDuration")]
-    total_duration: Duration,
+    pub total_duration: Duration,
     pub legs: Vec<Leg>,
     pub from: Destination,
     pub to: Destination,
-    id: String,
+    pub id: String,
 }
 
 impl Journey {
