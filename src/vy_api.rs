@@ -67,7 +67,7 @@ impl VyAPI {
             date
         );
 
-        println!("{}", search_body);
+        // println!("{}", search_body);
 
         let response = self
             .client
@@ -82,7 +82,7 @@ impl VyAPI {
         let suggestions = VyAPI::get_json_array_from_response(response, "suggestions").await?;
         let mut result: Vec<Journey> = vec![];
         suggestions.members().for_each(|member| {
-            println!("{}", member);
+            // println!("{}", member);
             result.push(serde_json::from_str(&member.to_string()).unwrap());
         });
 
@@ -160,7 +160,7 @@ impl VyAPI {
             ids
         );
 
-        println!("{}", offer_body);
+        // println!("{}", offer_body);
 
         let response = self
             .client
@@ -193,7 +193,7 @@ impl VyAPI {
             id
         );
 
-        println!("{}", body);
+        // println!("{}", body);
 
         let response = self
             .client
@@ -253,7 +253,7 @@ impl VyAPI {
             "#,
             order_guid, from_nsr, to_nsr
         );
-        println!("{}", body);
+        // println!("{}", body);
 
         let response = self
             .client
