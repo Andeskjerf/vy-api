@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Default, Debug, Clone)]
 pub struct Line {
-    name: String,
+    pub name: String,
     #[serde(alias = "longName")]
     long_name: Option<String>,
     #[serde(alias = "serviceLineId")]
@@ -16,7 +16,7 @@ pub struct Line {
     #[serde(alias = "textColour")]
     text_color: Option<String>,
     #[serde(alias = "serviceDestination")]
-    service_destination: Option<String>,
+    pub service_destination: Option<String>,
     #[serde(alias = "serviceDeparture")]
     service_departure: Option<String>,
     operator: Option<String>,
