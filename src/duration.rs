@@ -4,9 +4,9 @@ use serde::Serialize;
 
 #[derive(Default, Debug, PartialEq, Eq, Serialize, Deserialize, Clone, Copy)]
 pub struct Duration {
-    days: u8,
-    hours: u8,
-    minutes: u8,
+    pub days: u8,
+    pub hours: u8,
+    pub minutes: u8,
 }
 
 impl Duration {
