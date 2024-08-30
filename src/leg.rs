@@ -28,7 +28,7 @@ pub struct Leg {
     #[serde(default)]
     pub to: Destination,
     #[serde(default)]
-    line: Line,
+    pub line: Line,
     mode: Option<String>,
     #[serde(alias = "isNightTrain", default)]
     is_night_train: bool,
