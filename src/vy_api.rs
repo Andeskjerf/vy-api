@@ -121,7 +121,7 @@ impl VyAPI {
 
     pub async fn get_offers_for_search(
         &self,
-        search_results: &[Journey],
+        search_results: &[String],
     ) -> Result<Vec<Offer>, Box<dyn Error + Send + Sync>> {
         let target_url = format!("{}/services/booking/api/offer", VY_URL);
 
@@ -129,7 +129,7 @@ impl VyAPI {
             format!(
                 "{}\"{}\"{}",
                 f,
-                x.id(),
+                x,
                 if search_results.last().unwrap() != x {
                     ","
                 } else {

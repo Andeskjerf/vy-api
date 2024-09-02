@@ -20,7 +20,7 @@ mod vy_api;
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let from = "Oslo S";
     let to = "Bergen stasjon";
-    let date = "2024-08-30T04:00:00.000Z";
+    let date = "2024-09-05T04:00:00.000Z";
 
     let api = VyAPI::new()?;
 
@@ -31,7 +31,12 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let to = to_search.iter().find(|x| x.name == to).unwrap();
 
     let search_ids = api.perform_search_and_get_ids(from, to, date).await?;
-    let offers = api.get_offers_for_search(&search_ids).await?;
+    let offers = api
+        .get_offers_for_search(&search_ids.iter().fold(vec![], |mut acc: Vec<String>, i| {
+            acc.push(i.id().clone());
+            acc
+        }))
+        .await?;
 
     let mut offer_ids: Vec<String> = vec![];
 
