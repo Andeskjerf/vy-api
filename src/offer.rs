@@ -3,10 +3,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Offer {
     #[serde(alias = "itineraryId")]
-    id: String,
-    bookability: Bookability,
+    pub id: String,
+    pub bookability: Bookability,
     #[serde(alias = "segmentOffers")]
-    segment_offers: Vec<SegmentOffer>,
+    pub segment_offers: Vec<SegmentOffer>,
 }
 
 impl Offer {
@@ -28,28 +28,28 @@ impl Offer {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct SegmentOffer {
-    id: String,
+pub struct SegmentOffer {
+    pub id: String,
     #[serde(alias = "type")]
-    type_: String,
+    pub type_: String,
     #[serde(alias = "legIds")]
-    leg_ids: Vec<String>,
+    pub leg_ids: Vec<String>,
     pub bookability: Bookability,
     #[serde(alias = "priceConfigurations")]
     pub price_configrations: Vec<PriceConfiguration>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct PriceConfiguration {
+pub struct PriceConfiguration {
     pub id: String,
-    name: String,
+    pub name: String,
     #[serde(alias = "type")]
-    type_: String,
-    authorities: Vec<String>,
+    pub type_: String,
+    pub authorities: Vec<String>,
 }
 
 #[derive(Default, PartialEq, Eq, Debug, Serialize, Deserialize)]
-enum BookabilityType {
+pub enum BookabilityType {
     #[serde(rename = "FULLY_BOOKABLE")]
     FullyBookable,
     #[serde(rename = "NOT_BOOKABLE")]
@@ -62,11 +62,11 @@ enum BookabilityType {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
-struct Bookability {
+pub struct Bookability {
     #[serde(alias = "type")]
-    type_: BookabilityType,
-    summary: Option<String>,
-    description: Option<String>,
+    pub type_: BookabilityType,
+    pub summary: Option<String>,
+    pub description: Option<String>,
     #[serde(alias = "externalLink")]
-    external_link: Option<String>,
+    pub external_link: Option<String>,
 }
