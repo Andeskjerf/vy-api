@@ -15,7 +15,7 @@ pub struct Destination {
     #[serde(alias = "externalReferences", default)]
     external_references: Vec<ExternalReference>,
     #[serde(default)]
-    platform: String,
+    platform: Option<String>,
     #[serde(default)]
     categories: Vec<Category>,
 }
@@ -31,9 +31,9 @@ impl Destination {
     }
 
     pub fn get_platform(&self) -> &str {
-        match self.platform.as_str() {
-            "" => "No platform found",
-            _ => &self.platform,
+        match &self.platform {
+            None => "No platform found",
+            Some(res) => res,
         }
     }
 }
