@@ -6,7 +6,7 @@ pub struct Line {
     #[serde(alias = "longName")]
     long_name: Option<String>,
     #[serde(alias = "serviceLineId")]
-    service_line_id: String,
+    pub service_line_id: String,
     #[serde(alias = "colour")]
     color: Option<String>,
     #[serde(alias = "backgroundColour")]
